@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as:"
+title: "Corpus Navigator(v0.1.0)"
+authors:
+  - family-names: "Marathe"
+    given-names: "Mandar"
+    orcid: "https://orcid.org/0000-0002-6927-6836"
+    email: "mandar@marathe.org"
+    affiliation: "SOAS University of London"
+
+date-released: "2026-01-31"
+version: "0.1.0"
+url: "https://github.com/Balagha-Corpus/Corpus-Navigator/tree/v0.1.0"
+
+preferred-citation:
+  type: software
+  title: "Corpus Navigator (v0.1.0)"
+  authors:
+    - family-names: "Marathe"
+      given-names: "Mandar"
+      orcid: "https://orcid.org/0000-0002-6927-6836"
+  year: 2026
+  version: "0.1.0"
+  url: "https://github.com/Balagha-Corpus/Corpus-Navigator/tree/v0.1.0"
+  

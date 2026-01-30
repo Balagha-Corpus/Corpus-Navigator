@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corpus Navigator v0.1.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+		
+		
+	/* Top section layout */
+		#top {
+			display: flex;
+			align-items: flex-start;
+			gap: 20px;
+			margin-bottom: 20px;
+		}
+
+	#header {
+		flex: 1;
+		text-align: left;
+	}
+
+	#logo {
+		flex-shrink: 0;
+	}
+
+	#logo img {
+		width: 229px;
+		height: auto;
+	}
+
+	/* Mobile responsive */
+	@media (max-width: 500px) {
+		#top {
+			flex-direction: column-reverse;
+			align-items: stretch;
+		}
+    
+		#header {
+			text-align: center;
+		}
+    
+		#logo {
+			text-align: center;
+			margin-bottom: 15px;
+		}
+	}
+
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .tab-button {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+            transition: all 0.3s;
+        }
+        
+        .tab-button:hover {
+            color: #4CAF50;
+        }
+        
+        .tab-button.active {
+            color: #4CAF50;
+            border-bottom-color: #4CAF50;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Tool Tab Styles */
+        .input-section {
+            margin-bottom: 20px;
+        }
+        
+        .controls {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #555;
+        }
+        
+        input[type="checkbox"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: 'Arial', 'Traditional Arabic', sans-serif;
+            resize: vertical;
+            direction: ltr;
+        }
+        
+        textarea.rtl {
+            direction: rtl;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        button.action-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button.action-button:hover {
+            background-color: #45a049;
+        }
+        
+        button.action-button:active {
+            transform: translateY(1px);
+        }
+        
+        .results {
+            margin-top: 30px;
+        }
+        
+        .results h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .word-list {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            //max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .word-item {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        
+        .word-item:hover {
+            background-color: #90EE90;
+        }
+        
+        .word-item:last-child {
+            border-bottom: none;
+        }
+        
+        .word-number {
+            font-weight: bold;
+            color: #666;
+            min-width: 60px;
+        }
+        
+        .word-text {
+            font-family: 'Arial', 'Traditional Arabic', sans-serif;
+            font-size: 16px;
+            direction: ltr;
+            flex-grow: 1;
+            text-align: left;
+        }
+        
+        .word-text.rtl {
+            direction: rtl;
+            text-align: right;
+        }
+        
+        .stats {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e8f5e9;
+            border-radius: 4px;
+            color: #2e7d32;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Rules Tab Styles */
+        .rules-content {
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .rules-content h2 {
+            color: #2e7d32;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 22px;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 5px;
+        }
+        
+        .rules-content h3 {
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .rules-content h4 {
+            color: #555;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .rules-content p {
+            margin-bottom: 10px;
+        }
+        
+        .rules-content ul, .rules-content ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+        
+        .rules-content li {
+            margin-bottom: 8px;
+        }
+        
+        .rules-content code {
+            background-color: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .rules-content pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        .rules-content strong {
+            color: #2e7d32;
+        }
+        
+        .rules-content hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 30px 0;
+        }
+        
+        .rule-box {
+            background-color: #f9f9f9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .example-box {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffa726;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .footer a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+		
+		#conll {margin-top: 21px;}
+		
+		#cinput {margin-top:41px; text-align: center; border:1px solid #4CAF50; padding:21px}
+		
+		a:active, a:visited {color: #0000ee;}
+    </style>
+</head>
+<body>
+    <div class="container">
+	<div id="top">
+		<div id="header">	
+		<h1><a href="https://balagha-corpus.com/corpus-navigator.html" target="_blank">Corpus Navigator v0.1.0</a></h1><p>Multi-lingual word position tool for corpus annotation
+        </div>
+
+	<div id="logo" style="float:right"><a href="https://balagha-corpus.com" target="_blank">
+	<img style="width:229px;height:auto;" src="data:image/webp;base64,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" alt="The Balagha Corpus"></a>
+	</div>
+	
+
+	</div>	
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-button active" onclick="switchTab('tool')">Word Position Finder</button>
+            <button class="tab-button" onclick="switchTab('import')">Import CoNLL File</button>
+            <button class="tab-button" onclick="switchTab('rules')">Word Counting Rules</button>
+            <button class="tab-button" onclick="switchTab('info')">Info</button>
+        </div>
+        
+        <!-- Tool Tab -->
+        <div id="tool-tab" class="tab-content active">
+            <div class="input-section">
+                <div class="controls">
+                    <label>
+                        <input type="checkbox" id="rtlToggle" onchange="toggleDirection()">
+                        Right-to-left text (Arabic, Hebrew, Persian, Urdu, etc.)
+                    </label>
+                </div>
+                
+                <textarea 
+                    id="textInput" onkeydown="document.getElementById('downloadConllBtn').style.display = 'none'"
+                    placeholder="Enter text here... / أدخل النص هنا..."
+                    autofocus
+                ></textarea>
+            </div>
+            
+            <button class="action-button" onclick="numberWords()">Find Word Positions</button>
+			
+            <div id="results" class="results hidden">
+                <h2>Word Positions</h2>
+                <div class="stats" id="stats"></div>
+                <div class="word-list" id="wordList"></div>
+				<div id="conll"><button class="action-button" id="downloadConllBtn" type="button" style="display:none;background-color:orange" disabled>⬆️ Export CoNLL-style file</button></div>
+            </div>
+        </div>
+
+
+        <!-- CoNLL Import -->
+        <div id="import-tab" class="tab-content">
+		<div class="rules-content">
+		<h2>Import CoNLL File</h2>
+		<p>Please select existing CoNLL/CoNLL-U file to import for visual inspection</p>
+		<p id="cinput"><input type="file" id="conllFileInput" accept=".txt,.conll,.conllu" /> <button id="loadConllBtn" type="button" class="action-button" style="background-color:orange">⬇️ Import CoNLL</button></p>
+		</div>
+		</div>
+		
+        <!-- Info -->
+        <div id="info-tab" class="tab-content">
+		<div class="rules-content">
+                <h2>Info</h2>
+                <p><strong>Name:</strong> <a href="https://github.com/Balagha-Corpus/Corpus-Navigator" target="_blank">Corpus Navigator</a><br>
+				<strong>Version:</strong> <a href="https://github.com/Balagha-Corpus/Corpus-Navigator/tree/v0.1.0">0.1.0</a><br>
+                <strong>Date:</strong> 30 January 2026<br>
+                <strong>Publisher:</strong> <a href="https://balagha-corpus.com/" target="_blank">The Balagha Corpus</a><br>
+                <strong>Author:</strong> <a href="https://marathe.org/" target="_blank">Mandar Marathe</a></p>
+				
+					<p style="margin-top: 10px;"><strong>Use:</strong> This tool implements standardized rules for numbering words in any text, supporting multiple languages and writing systems. The tool allows for the determination of word position offsets consistently and reliably.</p>
+			<p style="margin-top: 10px;"><strong>Requirements:</strong> The tool is a fully stand-alone HTML/Javascript file which can be run on any web browser, and does not need internet access.</p>
+            <p style="margin-top: 10px;"><strong>Supports:</strong> RTL languages (Arabic, Hebrew, Persian, Urdu), LTR languages (English, Spanish, etc.), and mixed-direction text. Import / export of CoNLL-style files.</p>
+            <p style="margin-top: 10px;"><strong>Applicable to:</strong> Social media posts, tweets, comments, messages, and any text corpus requiring consistent word position verification.</p>
+
+
+                <h2>Implementation Notes</h2>
+                
+                <h3>For Manual Counting:</h3>
+                <ol>
+                    <li>Read through these rules carefully before beginning</li>
+                    <li>Count from 1, not 0</li>
+                    <li>Write down each word with its position to avoid errors</li>
+                    <li>Use the Word Position Finder to verify your counts</li>
+                    <li>When in doubt, consult the examples above</li>
+                </ol>
+                
+                <h3>For Programmatic Counting:</h3>
+                <ol>
+                    <li>The Word Position Finder implements all rules above</li>
+                    <li>The tool produces identical output to careful manual counting</li>
+                    <li>Use the tool for verification of annotations</li>
+                </ol>
+
+                <h2>Verification Process</h2>
+                
+                <p>To verify a word position annotation in your dataset:</p>
+                <ol>
+                    <li><strong>Retrieve the text</strong> from your corpus</li>
+                    <li><strong>Copy the full text content</strong></li>
+                    <li><strong>Paste into the Word Position Finder</strong> (switch to "Word Position Finder" tab)</li>
+                    <li><strong>Locate the word position</strong> referenced in the annotation (e.g., W7-8)</li>
+                    <li><strong>Verify the annotation</strong> matches the identified span</li>
+                </ol>
+                
+                <h2>Changelog</h2>
+                
+                <p><strong>Version 0.1.0 (30 January 2026)</strong></p>
+                <ul>
+                    <li>Initial release (previously known as <a href="https://doi.org/10.5281/zenodo.18264027" target="_blank">Word Position Finder (v0.1.0)</a>)</li>
+                    <li>21 core rules defined</li>
+                    <li>Language-agnostic implementation</li>
+                    <li>Support for RTL and LTR scripts</li>
+                    <li>Import / export of CoNLL-style files</li>
+					<li>Complete examples provided</li>
+                </ul>
+               
+				<h2>Citation</h2>
+				<p><a href="https://marathe.org/" target="_blank">Mandar Marathe</a>. "Corpus Navigator (v0.1.0)" Github, 2026. <a href="https://github.com/Balagha-Corpus/Corpus-Navigator/tree/v0.1.0
+">https://github.com/Balagha-Corpus/Corpus-Navigator/tree/v0.1.0</a>.</p>
+								
+                <h2>Contact</h2>
+                <p>For questions about this tool or to report issues, please email <a href="mailto:contact@balagha-corpus.com?Subject:Word%20Position%20Finder">contact@balagha-corpus.com</a>.</p>
+                
+                <h2>License</h2>
+                
+                <p>This documentation is released under CC-BY 4.0 license.<br>
+                You are free to share and adapt with attribution.</p>
+		</div>
+		</div>
+        
+        <!-- Rules Tab -->
+        <div id="rules-tab" class="tab-content">
+            <div class="rules-content">
+                <h2>Word Counting Rules</h2>
+                
+                <p>This document defines the rules used to determine word positions in text corpus annotations. These rules apply whether counting is performed manually or programmatically.</p>
+                
+                <p><strong>Purpose:</strong> To ensure consistent and reproducible verification of annotations across any text dataset, regardless of language or content type.</p>
+                
+               
+                <h2>Core Rules</h2>
+                
+                <div class="rule-box">
+                    <h3>Rule 1: Word Position Indexing</h3>
+                    <p><strong>Word positions start from 1 (not 0)</strong></p>
+                    <div class="example-box">
+                        <p><strong>Example (English):</strong> "Hello world"</p>
+                        <ul>
+                            <li>W1: <code>Hello</code></li>
+                            <li>W2: <code>world</code></li>
+                        </ul>
+                        <p><strong>Example (Arabic):</strong> "مرحبا بك"</p>
+                        <ul>
+                            <li>W1: <code>مرحبا</code></li>
+                            <li>W2: <code>بك</code></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="rule-box">
+                    <h3>Rule 2: Hashtag Tokenization</h3>
+                    <p><strong>Hashtags are split on separators: dash <code>-</code>, underscore <code>_</code>, or emdash <code>—</code></strong></p>
+                    <p>The <code>#</code> symbol remains attached to the first segment only.</p>
+                    <div class="example-box">
+                        <p><strong>Example 1:</strong> <code>#climate_change</code></p>
+                        <ul>
+                            <li>W1: <code>#climate</code></li>
+                            <li>W2: <code>change</code></li>
+                        </ul>
+                        <p><strong>Example 2:</strong> <code>#breaking-news</code></p>
+                        <ul>
+                            <li>W1: <code>#breaking</code></li>
+                            <li>W2: <code>news</code></li>
+                        </ul>
+                        <p><strong>Example 3:</strong> Single-word hashtag <code>#important</code></p>
+                        <ul>
+                            <li>W1: <code>#important</code> (no splitting)</li>
+                        </ul>
+                        <p><strong>Example 4 (Arabic):</strong> <code>#آخر_الأخبار</code></p>
+                        <ul>
+                            <li>W1: <code>#آخر</code></li>
+                            <li>W2: <code>الأخبار</code></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="rule-box">
+                    <h3>Rule 3: Emoji Handling</h3>
+                    <p><strong>All emoji are stripped and do not count as words</strong></p>
+                    <p>This includes: flag emoji, symbols, face emoji, and any Unicode emoji character.</p>
+                    <div class="example-box">
+                        <p><strong>Example (English):</strong> "Great news 🎉 today ❤️"</p>
+                        <ul>
+                            <li>W1: <code>Great</code></li>
+                            <li>W2: <code>news</code></li>
+                            <li>W3: <code>today</code></li>
+                        </ul>
+                        <p><strong>Example (Arabic):</strong> "خبر جيد 🎉 اليوم ❤️"</p>
+                        <ul>
+                            <li>W1: <code>خبر</code></li>
+                            <li>W2: <code>جيد</code></li>
+                            <li>W3: <code>اليوم</code></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="rule-box">
+                    <h3>Rule 4: Punctuation Handling</h3>
+                    <p><strong>Punctuation attached to words is kept; free-standing punctuation is stripped</strong></p>
+                    
+                    <h4>Attached Punctuation (kept as part of word):</h4>
+                    <div class="example-box">
+                        <p><strong>Example 1 (English):</strong> <code>world,</code> → one word (comma attached)</p>
+                        <p><strong>Example 2 (English):</strong> <code>really?</code> → one word (question mark attached)</p>
+                        <p><strong>Example 3 (English):</strong> <code>"hello"</code> → one word (quotes attached)</p>
+                        <p><strong>Example 4 (Arabic):</strong> <code>والكلمة،</code> → one word (comma attached)</p>
+                    </div>
+                    
+                    <h4>Free-standing Punctuation (stripped):</h4>
+                    <div class="example-box">
+                        <p><strong>Example 1:</strong> <code>. . .</code> or <code>...</code> (ellipsis alone) → zero words</p>
+                        <p><strong>Example 2:</strong> <code>,</code> (comma alone) → zero words</p>
+                        <p><strong>Example 3 (English):</strong> "Hello , world"</p>
+                        <ul>
+                            <li>W1: <code>Hello</code></li>
+                            <li>W2: <code>world</code></li>
+                            <li>(Free-standing comma is stripped)</li>
+                        </ul>
+                        <p><strong>Example 4 (Arabic):</strong> "كلمة ، أخرى"</p>
+                        <ul>
+                            <li>W1: <code>كلمة</code></li>
+                            <li>W2: <code>أخرى</code></li>
+                            <li>(Free-standing comma is stripped)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="rule-box">
+                    <h3>Rule 5: URL Handling</h3>
+                    <p><strong>URLs count as single words regardless of length</strong></p>
+                    <div class="example-box">
+                        <p><strong>Example (English):</strong> "Check https://example.com/article for details"</p>
+                        <ul>
+                            <li>W1: <code>Check</code></li>
+                            <li>W2: <code>https://example.com/article</code></li>
+                            <li>W3: <code>for</code></li>
+                            <li>W4: <code>details</code></li>
+                        </ul>
+                        <p><strong>Example (Arabic):</strong> "انظر https://example.com/article للتفاصيل"</p>
+                        <ul>
+                            <li>W1: <code>انظر</code></li>
+                            <li>W2: <code>https://example.com/article</code></li>
+                            <li>W3: <code>للتفاصيل</code></li>
+                        </ul>
+                    </div>
+                </div>
+                
+
+                
+                <h2>Language-Specific Rules</h2>
+                
+                <div class="rule-box">
+                    <h3>Rule 6: Non-Latin Punctuation Marks</h3>
+                    <p><strong>Handle language-specific punctuation the same as Western punctuation</strong></p>
+                    <p>Examples include:</p>
+                    <ul>
+                        <li>Arabic comma <code>،</code> - attached: keep; free-standing: strip</li>
+                        <li>Arabic question mark <code>؟</code> - attached: keep; free-standing: strip</li>
+                        <li>Arabic semicolon <code>؛</code> - attached: keep; free-standing: strip</li>
+                        <li>Chinese/Japanese punctuation - attached: keep; free-standing: strip</li>
+                        <li>Ellipsis <code>…</code> (single character) - free-standing: strip</li>
+                    </ul>
+                    <div class="example-box">
+                        <p><strong>Example (Arabic):</strong> "الكلمة؛ كلمة"</p>
+                        <ul>
+                            <li>W1: <code>الكلمة؛</code></li>
+                            <li>W2: <code>كلمة</code></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="rule-box">
+                    <h3>Rule 7: Tatweel (Kashida) Character</h3>
+                    <p><strong>Tatweel <code>ـ</code> is kept as part of the word (Arabic-specific)</strong></p>
+                    <p>Tatweel is used for emphasis or visual elongation in Arabic social media.</p>
+                    <div class="example-box">
+                        <p><strong>Example (Arabic):</strong> "كلـــمة" (with tatweel)</p>
+                        <ul>
+                            <li>W1: <code>كلـــمة</code> (one word)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="rule-box">
+                    <h3>Rule 8: Diacritics</h3>
+                    <p><strong>All diacritics are preserved and do not affect word boundaries</strong></p>
+                    <p>This applies to any language with diacritics: Arabic harakat, Hebrew niqqud, Vietnamese tone marks, etc.</p>
+                    <div class="example-box">
+                        <p><strong>Example (Arabic):</strong> "الكَلِمَةُ"</p>
+                        <ul>
+                            <li>W1: <code>الكَلِمَةُ</code> (one word with all diacritics)</li>
+                        </ul>
+                        <p><strong>Example (Vietnamese):</strong> "tiếng"</p>
+                        <ul>
+                            <li>W1: <code>tiếng</code> (one word with tone marks)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="rule-box">
+                    <h3>Rule 9: Numerals</h3>
+                    <p><strong>Numerals in any script count as single words</strong></p>
+                    <p>This includes Western numerals (0-9), Arabic-Indic numerals (٠-٩), and numerals from other writing systems.</p>
+                    <div class="example-box">
+                        <p><strong>Example 1 (English):</strong> "In 2025 we started"</p>
+                        <ul>
+                            <li>W1: <code>In</code></li>
+                            <li>W2: <code>2025</code></li>
+                            <li>W3: <code>we</code></li>
+                            <li>W4: <code>started</code></li>
+                        </ul>
+                        <p><strong>Example 2 (Arabic):</strong> "في ٢٠٢٥ بدأنا"</p>
+                        <ul>
+                            <li>W1: <code>في</code></li>
+                            <li>W2: <code>٢٠٢٥</code></li>
+                            <li>W3: <code>بدأنا</code></li>
+                        </ul>
+                        <p><strong>Example 3:</strong> Date format "15/1/2025"</p>
+                        <ul>
+                            <li>W1: <code>15/1/2025</code> (one word)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="rule-box">
+                    <h3>Rule 10: Mentions and Tags</h3>
+                    <p><strong>Social media mentions (@ symbol) count as single words</strong></p>
+                    <div class="example-box">
+                        <p><strong>Example (English):</strong> "Thanks @username for help"</p>
+                        <ul>
+                            <li>W1: <code>Thanks</code></li>
+                            <li>W2: <code>@username</code></li>
+                            <li>W3: <code>for</code></li>
+                            <li>W4: <code>help</code></li>
+                        </ul>
+                        <p><strong>Example (Arabic):</strong> "شكرا @username على"</p>
+                        <ul>
+                            <li>W1: <code>شكرا</code></li>
+                            <li>W2: <code>@username</code></li>
+                            <li>W3: <code>على</code></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="rule-box">
+                    <h3>Rule 11: Quote Marks</h3>
+                    <p><strong>Quote marks attached to text are kept; free-standing are stripped</strong></p>
+                    <p>Includes Western quotes <code>""</code>, Arabic quotes <code>«»</code>, and other quotation marks.</p>
+                    <div class="example-box">
+                        <p><strong>Example 1 (English):</strong> <code>"word"</code> → one word</p>
+                        <p><strong>Example 2 (Arabic):</strong> <code>«الكلمة»</code> → one word</p>
+                        <p><strong>Example 3:</strong> Free-standing <code>" "</code> or <code>« »</code> → zero words (stripped)</p>
+                    </div>
+                </div>
+                
+                <div class="rule-box">
+                    <h3>Rule 12: Repeated Letters for Emphasis</h3>
+                    <p><strong>Letter repetition counts as single word</strong></p>
+                    <p>Common in social media across many languages for emphasis or excitement.</p>
+                    <div class="example-box">
+                        <p><strong>Example (English):</strong> "yessss"</p>
+                        <ul>
+                            <li>W1: <code>yessss</code> (one word)</li>
+                        </ul>
+                        <p><strong>Example (Arabic):</strong> "نعممممم"</p>
+                        <ul>
+                            <li>W1: <code>نعممممم</code> (one word)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="rule-box">
+                    <h3>Rule 13: Mixed-Script Text</h3>
+                    <p><strong>Each segment in a different script separated by space is a separate word</strong></p>
+                    <div class="example-box">
+                        <p><strong>Example (Arabic-English):</strong> "كلمة word أخرى"</p>
+                        <ul>
+                            <li>W1: <code>كلمة</code></li>
+                            <li>W2: <code>word</code></li>
+                            <li>W3: <code>أخرى</code></li>
+                        </ul>
+                        <p><strong>Example (Hebrew-English):</strong> "מילה word אחרת"</p>
+                        <ul>
+                            <li>W1: <code>מילה</code></li>
+                            <li>W2: <code>word</code></li>
+                            <li>W3: <code>אחרת</code></li>
+                        </ul>
+                        <p><strong>Note:</strong> No space between scripts (rare): "wordكلمة" → W1: <code>wordكلمة</code> (one word)</p>
+                    </div>
+                </div>
+                
+                <div class="rule-box">
+                    <h3>Rule 14: Line Breaks and Whitespace</h3>
+                    <p><strong>Line breaks and paragraph marks are treated as whitespace</strong></p>
+                    <ul>
+                        <li><code>\n</code> (newline) → treated as space</li>
+                        <li><code>\r</code> (carriage return) → treated as space</li>
+                        <li><code>\t</code> (tab) → treated as space</li>
+                        <li>Multiple consecutive spaces → collapsed to single space</li>
+                    </ul>
+                    <div class="example-box">
+                        <p><strong>Example:</strong> "word\nanother" → same as "word another"</p>
+                        <ul>
+                            <li>W1: <code>word</code></li>
+                            <li>W2: <code>another</code></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="rule-box">
+                    <h3>Rule 15: Zero-Width Characters</h3>
+                    <p><strong>Zero-width characters are stripped and ignored</strong></p>
+                    <p>This includes:</p>
+                    <ul>
+                        <li>Zero-width joiner (ZWJ) <code>\u200D</code></li>
+                        <li>Zero-width non-joiner (ZWNJ) <code>\u200C</code></li>
+                        <li>Zero-width space <code>\u200B</code></li>
+                    </ul>
+                    <p>These characters do not create word boundaries and are completely removed.</p>
+                </div>
+                
+                <div class="rule-box">
+                    <h3>Rule 16: Retweet Markers</h3>
+                    <p><strong>RT markers are counted as separate words if present</strong></p>
+                    <div class="example-box">
+                        <p><strong>Example 1 (English):</strong> "RT @user: Important message"</p>
+                        <ul>
+                            <li>W1: <code>RT</code></li>
+                            <li>W2: <code>@user:</code></li>
+                            <li>W3: <code>Important</code></li>
+                            <li>W4: <code>message</code></li>
+                        </ul>
+                        <p><strong>Example 2 (Arabic):</strong> "RT: رسالة مهمة"</p>
+                        <ul>
+                            <li>W1: <code>RT:</code></li>
+                            <li>W2: <code>رسالة</code></li>
+                            <li>W3: <code>مهمة</code></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="rule-box">
+                    <h3>Rule 17: Leading and Trailing Whitespace</h3>
+                    <p><strong>Strip all leading and trailing whitespace before tokenization</strong></p>
+                    <div class="example-box">
+                        <p><strong>Example:</strong> "  word another  " → "word another"</p>
+                        <ul>
+                            <li>W1: <code>word</code></li>
+                            <li>W2: <code>another</code></li>
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <h2>Edge Cases</h2>
+                
+                <div class="rule-box">
+                    <h3>Rule 18: Parentheses and Brackets</h3>
+                    <p><strong>Content within parentheses/brackets is treated as part of the word</strong></p>
+                    <div class="example-box">
+                        <p><strong>Example 1:</strong> <code>(word)</code> → W1: <code>(word)</code> (one word)</p>
+                        <p><strong>Example 2:</strong> <code>( word )</code> (spaces inside) → W1: <code>(word)</code> (spaces normalized)</p>
+                        <p><strong>Example 3:</strong> Free-standing <code>()</code> or <code>[]</code> → zero words (stripped)</p>
+                    </div>
+                </div>
+                
+                <div class="rule-box">
+                    <h3>Rule 19: Special Symbols</h3>
+                    <p><strong>Ampersands and standalone symbols are stripped</strong></p>
+                    <ul>
+                        <li><code>&</code> alone → stripped (zero words)</li>
+                        <li><code>@</code> alone → stripped (zero words)</li>
+                        <li><code>#</code> alone → stripped (zero words)</li>
+                        <li>These only count if attached to text</li>
+                    </ul>
+                    <div class="example-box">
+                        <p><strong>Example (English):</strong> "word & another"</p>
+                        <ul>
+                            <li>W1: <code>word</code></li>
+                            <li>W2: <code>another</code></li>
+                            <li>(The <code>&</code> is stripped)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="rule-box">
+                    <h3>Rule 20: Mixed Punctuation from Different Scripts</h3>
+                    <p><strong>Punctuation from any script follows the same attachment rules</strong></p>
+                    <div class="example-box">
+                        <p><strong>Example:</strong> "word، another. كلمة"</p>
+                        <ul>
+                            <li>W1: <code>word،</code></li>
+                            <li>W2: <code>another.</code></li>
+                            <li>W3: <code>كلمة</code></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="rule-box">
+                    <h3>Rule 21: Special Ligatures</h3>
+                    <p><strong>Special ligatures count as single words</strong></p>
+                    <p>Examples:</p>
+                    <ul>
+                        <li>Arabic: <code>ﷲ</code> (Allah ligature) → W1: <code>ﷲ</code> (one word)</li>
+                        <li>Arabic: <code>ﷺ</code> (PBUH ligature) → W1: <code>ﷺ</code> (one word)</li>
+                        <li>Other scripts with ligatures follow the same pattern</li>
+                    </ul>
+                </div>
+                
+                
+                <h2>Complete Examples</h2>
+                
+                <div class="example-box">
+                    <h3>Example 1: Simple Text (English)</h3>
+                    <p><strong>Text:</strong> "The weather today is beautiful"</p>
+                    <p><strong>Tokenization:</strong></p>
+                    <ul>
+                        <li>W1: <code>The</code></li>
+                        <li>W2: <code>weather</code></li>
+                        <li>W3: <code>today</code></li>
+                        <li>W4: <code>is</code></li>
+                        <li>W5: <code>beautiful</code></li>
+                    </ul>
+                </div>
+                
+                <div class="example-box">
+                    <h3>Example 2: Social Media Post with Hashtag (English)</h3>
+                    <p><strong>Text:</strong> "Breaking news #climate_action is trending today"</p>
+                    <p><strong>Tokenization:</strong></p>
+                    <ul>
+                        <li>W1: <code>Breaking</code></li>
+                        <li>W2: <code>news</code></li>
+                        <li>W3: <code>#climate</code></li>
+                        <li>W4: <code>action</code></li>
+                        <li>W5: <code>is</code></li>
+                        <li>W6: <code>trending</code></li>
+                        <li>W7: <code>today</code></li>
+                    </ul>
+                </div>
+                
+                <div class="example-box">
+                    <h3>Example 3: Post with Emoji and Punctuation (English)</h3>
+                    <p><strong>Text:</strong> "Great news 🎉 everyone, check it out! ❤️"</p>
+                    <p><strong>Tokenization:</strong></p>
+                    <ul>
+                        <li>W1: <code>Great</code></li>
+                        <li>W2: <code>news</code></li>
+                        <li>W3: <code>everyone,</code></li>
+                        <li>W4: <code>check</code></li>
+                        <li>W5: <code>it</code></li>
+                        <li>W6: <code>out!</code></li>
+                    </ul>
+                    <p>(Emoji 🎉 and ❤️ are stripped)</p>
+                </div>
+                
+                <div class="example-box">
+                    <h3>Example 4: Complex Post with URL (English)</h3>
+                    <p><strong>Text:</strong> "RT @user: Amazing story... #breaking-news #must_read https://example.com 👍"</p>
+                    <p><strong>Tokenization:</strong></p>
+                    <ul>
+                        <li>W1: <code>RT</code></li>
+                        <li>W2: <code>@user:</code></li>
+                        <li>W3: <code>Amazing</code></li>
+                        <li>W4: <code>story...</code></li>
+                        <li>W5: <code>#breaking</code></li>
+                        <li>W6: <code>news</code></li>
+                        <li>W7: <code>#must</code></li>
+                        <li>W8: <code>read</code></li>
+                        <li>W9: <code>https://example.com</code></li>
+                    </ul>
+                    <p>(Emoji 👍 is stripped; ellipsis attached to word is kept)</p>
+                </div>
+                
+                <div class="example-box">
+                    <h3>Example 5: Simple Text (Arabic)</h3>
+                    <p><strong>Text:</strong> "الطقس اليوم جميل جدا"</p>
+                    <p><strong>Tokenization:</strong></p>
+                    <ul>
+                        <li>W1: <code>الطقس</code></li>
+                        <li>W2: <code>اليوم</code></li>
+                        <li>W3: <code>جميل</code></li>
+                        <li>W4: <code>جدا</code></li>
+                    </ul>
+                </div>
+                
+                <div class="example-box">
+                    <h3>Example 6: Social Media Post (Arabic)</h3>
+                    <p><strong>Text:</strong> "خبر عاجل #آخر_الأخبار يتصدر الآن"</p>
+                    <p><strong>Tokenization:</strong></p>
+                    <ul>
+                        <li>W1: <code>خبر</code></li>
+                        <li>W2: <code>عاجل</code></li>
+                        <li>W3: <code>#آخر</code></li>
+                        <li>W4: <code>الأخبار</code></li>
+                        <li>W5: <code>يتصدر</code></li>
+                        <li>W6: <code>الآن</code></li>
+                    </ul>
+                </div>
+                
+                <div class="example-box">
+                    <h3>Example 7: Mixed Language Post</h3>
+                    <p><strong>Text:</strong> "Check this article المقال مهم very important"</p>
+                    <p><strong>Tokenization:</strong></p>
+                    <ul>
+                        <li>W1: <code>Check</code></li>
+                        <li>W2: <code>this</code></li>
+                        <li>W3: <code>article</code></li>
+                        <li>W4: <code>المقال</code></li>
+                        <li>W5: <code>مهم</code></li>
+                        <li>W6: <code>very</code></li>
+                        <li>W7: <code>important</code></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer"><a href="https://github.com/Balagha-Corpus/Corpus-Navigator/releases/download/v0.1.0/CORPUS_NAVIGATOR_v0_1_0.html" target="_blank">Corpus Navigator - Free download</a></div>
+    </div>
+
+    <script>
+        /**
+         * Tab Switching Function
+         */
+        function switchTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Deactivate all tab buttons
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => button.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Activate corresponding button
+            event.target.classList.add('active');
+        }
+        
+        /**
+         * Word Position Finder
+         * Version: 0.1.0
+         * 
+         * Implements standardized tokenization for social media content verification.
+         * Language-agnostic implementation applicable to any text corpus.
+         * 
+         * Key Features:
+         * - Language-agnostic tokenization
+         * - Social media conventions (hashtags, mentions, URLs, RT markers)
+         * - Emoji removal
+         * - Punctuation normalization
+         * - Zero-width character handling
+         * - Support for RTL and LTR text
+         * - Import / export of CoNLL-style files
+         */
+        
+        function tokenizeText(text) {
+            // Rule 17: Strip leading and trailing whitespace
+            text = text.trim();
+            
+            if (!text) {
+                return [];
+            }
+            
+            // Rule 15: Remove zero-width characters
+            text = text.replace(/[\u200B\u200C\u200D]/g, '');
+            
+            // Rule 3: Remove all emoji
+            // Comprehensive emoji regex covering all Unicode emoji blocks
+            text = text.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F000}-\u{1F02F}]|[\u{1F0A0}-\u{1F0FF}]|[\u{1F100}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA00}-\u{1FA6F}]|[\u{1FA70}-\u{1FAFF}]|[\u{FE00}-\u{FE0F}]|[\u{1F1E0}-\u{1F1FF}]/gu, '');
+            
+            // Rule 14: Normalize line breaks and whitespace to single spaces
+            text = text.replace(/[\r\n\t]+/g, ' ');
+            text = text.replace(/\s+/g, ' ');
+            
+            // Initial split on whitespace
+            let tokens = text.split(/\s+/);
+            
+            // Process each token
+            let processedTokens = [];
+            
+            for (let token of tokens) {
+                if (!token) continue;
+                
+                // Rule 2: Handle hashtag tokenization
+                // Split hashtags on dash, underscore, or emdash
+                // Keep # symbol only on first segment
+                if (token.startsWith('#')) {
+                    const hashtagContent = token.substring(1); // Remove initial #
+                    const segments = hashtagContent.split(/[-_—]/);
+                    
+                    if (segments.length > 1) {
+                        // Multi-segment hashtag
+                        processedTokens.push('#' + segments[0]); // First segment keeps #
+                        for (let i = 1; i < segments.length; i++) {
+                            if (segments[i]) {
+                                processedTokens.push(segments[i]);
+                            }
+                        }
+                    } else {
+                        // Single-segment hashtag
+                        processedTokens.push(token);
+                    }
+                    continue;
+                }
+                
+                // Rule 4 & 6 & 11: Handle punctuation
+                // Remove free-standing punctuation marks (works for multiple scripts)
+                // Includes: Latin, Arabic, Chinese, and other punctuation
+                const punctuationOnly = /^[.,;:!?،؟؛…\u2026"'«»\[\]\(\)\u3000-\u303F\uFF00-\uFFEF]+$/;
+                if (punctuationOnly.test(token)) {
+                    // Free-standing punctuation - skip it (Rule 4)
+                    continue;
+                }
+                
+                // Rule 19: Remove standalone special symbols
+                const specialSymbolsOnly = /^[&@#]+$/;
+                if (specialSymbolsOnly.test(token)) {
+                    continue;
+                }
+                
+                // Rule 18: Handle empty parentheses/brackets
+                if (/^[\[\]\(\)]+$/.test(token)) {
+                    continue;
+                }
+                
+                // All other tokens are kept as-is
+                // This includes:
+                // - Rule 5: URLs (counted as single words)
+                // - Rule 7: Tatweel/kashida characters (kept in words) - Arabic specific but harmless for other languages
+                // - Rule 8: Diacritics (preserved) - works for any language with diacritics
+                // - Rule 9: Numerals (Arabic and Western)
+                // - Rule 10: Mentions (@username)
+                // - Rule 12: Repeated letters for emphasis (works in any language)
+                // - Rule 13: Mixed-script text
+                // - Rule 16: RT markers
+                // - Rule 20: Mixed punctuation (attached)
+                // - Rule 21: Special ligatures (language-specific but preserved)
+                
+                processedTokens.push(token);
+            }
+            
+            return processedTokens;
+        }
+        
+        function toggleDirection() {
+            const textarea = document.getElementById('textInput');
+            const rtl = document.getElementById('rtlToggle').checked;
+            
+            // Update textarea direction
+            if (rtl) {
+                textarea.classList.add('rtl');
+            } else {
+                textarea.classList.remove('rtl');
+            }
+            
+            // Update existing word display direction if results are visible
+            const wordTexts = document.querySelectorAll('.word-text');
+            wordTexts.forEach(el => {
+                if (rtl) {
+                    el.classList.add('rtl');
+                } else {
+                    el.classList.remove('rtl');
+                }
+            });
+        }
+		
+		
+		
+		
+		// ---- CoNLL parsing function ----
+function parseConllText(text) {
+  var lines = text.split(/\r?\n/);
+  var tokens = [];
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i].trim();
+    if (line === '') {
+      // End of first sentence/tweet
+      if (tokens.length > 0) break;
+      else continue;
+    }
+    // Skip comment lines starting with '#' (CoNLL-U style)
+    if (line.charAt(0) === '#') continue;
+
+    var cols = line.split('\t');
+    if (cols.length === 0) continue;
+
+    // CoNLL-U sometimes has multiword token lines like "1-2 don't"
+    // which we skip here; we only keep numeric IDs.
+    var idCol = cols[0];
+    if (!/^\d+$/.test(idCol)) continue;
+
+    var form = (cols.length > 1) ? cols[1] : '';
+    tokens.push(form);
+  }
+  return tokens;
+}
+
+// ---- Helper: render tokens from array (reuses your existing display logic) ----
+function renderTokensFromConll(tokens) {
+  const wordListDiv = document.getElementById('wordList');
+  const statsDiv = document.getElementById('stats');
+  const resultsDiv = document.getElementById('results');
+  
+    // Populate the textarea with the words (stripped of CoNLL formatting)
+  const textInput = document.getElementById('textInput');
+  textInput.value = tokens.join(' ');
+  
+  // Clear previous results
+  wordListDiv.innerHTML = '';
+  
+  if (!tokens || tokens.length === 0) {
+    statsDiv.textContent = 'No tokens found in the CoNLL file.';
+    resultsDiv.classList.remove('hidden');
+    return;
+  }
+  
+  // Get RTL setting
+  const isRTL = document.getElementById('rtlToggle').checked;
+  
+  // Create word items (same as numberWords does)
+  tokens.forEach((word, index) => {
+    const wordItem = document.createElement('div');
+    wordItem.className = 'word-item';
+    
+    const numberSpan = document.createElement('span');
+    numberSpan.className = 'word-number';
+    numberSpan.textContent = `W${index + 1}`;
+    
+    const wordSpan = document.createElement('span');
+    wordSpan.className = 'word-text';
+    if (isRTL) {
+      wordSpan.classList.add('rtl');
+    }
+    wordSpan.textContent = word;
+    
+    wordItem.appendChild(numberSpan);
+    wordItem.appendChild(wordSpan);
+    wordListDiv.appendChild(wordItem);
+  });
+  
+  // Show statistics
+  statsDiv.textContent = `Total words: ${tokens.length}`;
+  
+  // Show results section
+  resultsDiv.classList.remove('hidden');
+  
+  // Enable CoNLL download
+  enableConllDownload(tokens);
+  
+  // Scroll to results
+  resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ---- Hook up the "Load CoNLL" button ----
+(function setupConllImport() {
+  var btn = document.getElementById('loadConllBtn');
+  var fileInput = document.getElementById('conllFileInput');
+  if (!btn || !fileInput) return;
+
+  btn.addEventListener('click', function () {
+    switchTab('tool');
+    var file = fileInput.files && fileInput.files[0];
+    if (!file) {
+      alert('Please choose a CoNLL-style file first.');
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      var text = e.target.result;
+      var tokens = parseConllText(text);
+      renderTokensFromConll(tokens);
+    };
+    reader.readAsText(file, 'UTF-8');
+  });
+})();
+		
+		
+		
+		
+        
+        function numberWords() {
+            const text = document.getElementById('textInput').value;
+            
+            if (!text.trim()) {
+                alert('Please enter some text first.');
+                return;
+            }
+            
+            // Apply tokenization rules
+            const words = tokenizeText(text);
+            
+            // Display results
+            const resultsDiv = document.getElementById('results');
+            const wordListDiv = document.getElementById('wordList');
+            const statsDiv = document.getElementById('stats');
+            
+            // Clear previous results
+            wordListDiv.innerHTML = '';
+            
+            if (words.length === 0) {
+                statsDiv.textContent = 'No words found (text may contain only emoji or punctuation)';
+                resultsDiv.classList.remove('hidden');
+                return;
+            }
+            
+            // Rule 1: Word positions start from 1 (not 0)
+            // Create word items
+            const isRTL = document.getElementById('rtlToggle').checked;
+            
+            words.forEach((word, index) => {
+                const wordItem = document.createElement('div');
+                wordItem.className = 'word-item';
+                
+                const numberSpan = document.createElement('span');
+                numberSpan.className = 'word-number';
+                numberSpan.textContent = `W${index + 1}`;
+                
+                const wordSpan = document.createElement('span');
+                wordSpan.className = 'word-text';
+                if (isRTL) {
+                    wordSpan.classList.add('rtl');
+                }
+                wordSpan.textContent = word;
+                
+                wordItem.appendChild(numberSpan);
+                wordItem.appendChild(wordSpan);
+                wordListDiv.appendChild(wordItem);
+            });
+            
+            // Show statistics
+            statsDiv.textContent = `Total words: ${words.length}`;
+            
+            // Show results section
+            resultsDiv.classList.remove('hidden');
+            
+            // Scroll to results
+            resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        
+		enableConllDownload(words);
+		}
+        
+        // Allow Enter key to submit (with Ctrl/Cmd modifier)
+        document.getElementById('textInput').addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                numberWords();
+            }
+        });
+		
+		
+// Assume `words` is the final ordered array of token strings
+// Call this function right after you finish tokenisation/display
+function enableConllDownload(words) {
+  const btn = document.getElementById('downloadConllBtn');
+  if (!btn) return;
+  if (!words || words.length === 0) {
+    btn.disabled = true;
+    btn.onclick = null;
+    return;
+  }
+
+  btn.disabled = false; btn.style.display = "inline";
+  btn.onclick = function () {
+    // Build CoNLL-like content: ID<TAB>FORM
+    // Blank line at end of tweet, as in CoNLL-U
+    let lines = [];
+    for (let i = 0; i < words.length; i++) {
+      const id = i + 1;          // IDs start at 1
+      const form = words[i];
+      lines.push(id + "\t" + form);
+    }
+    lines.push("");              // sentence boundary
+    const content = lines.join("\n");
+
+    // Create a downloadable text file
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+	const now = new Date();
+	const timestamp = now.toISOString().slice(0, 19).replace(/[-:T]/g, '').replace(/(\d{8})(\d{6})/, '$1_$2');
+	a.download = `${timestamp}_CoNLL.txt`;  // you can customise this
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+}		
+		
+		
+		
+		
+    </script>
+</body>
+</html>
