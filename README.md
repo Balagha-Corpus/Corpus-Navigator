@@ -17,6 +17,14 @@ A multi-lingual word position tool for corpus annotation, published by [The Bala
 
 
 &nbsp;
+## ℹ️ How to use
+* Download the [CORPUS_NAVIGATOR_v0_1_0.html](/CORPUS_NAVIGATOR_v0_1_0.html) file (also available as a [downloadable asset](https://github.com/Balagha-Corpus/Corpus-Navigator/releases/download/v0.1.0/CORPUS_NAVIGATOR_v0_1_0.html))
+
+  OR
+
+* Access the live version at [The Balagha Corpus](https://balagha-corpus.com/corpus-navigator.html) website.
+
+&nbsp;
 ## 🔄 Versioning
 The Corpus Navigator uses **Semantic Versioning (SemVer)**.
 
